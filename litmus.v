@@ -81,7 +81,7 @@ Fixpoint MatchingWrites
   | w::t =>
     match (action r, action w) with
     | (Access dr lr vr, Access dw lw vw) =>
-      match (dr, dw, nat_compare lr lw, nat_compare vr vw) with
+      match (dr, dw, nat_compare_alt lr lw, nat_compare_alt vr vw) with
       | (R, W, Eq, Eq) => (Some w, r) :: MatchingWrites r t
       | _ => MatchingWrites r t
       end

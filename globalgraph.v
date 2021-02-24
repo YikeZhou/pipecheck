@@ -67,7 +67,7 @@ Fixpoint ungeid'
  (p : Pipeline)
  (n s e : nat)
  : (location * program_order_index) :=
-  match (n, nat_compare s (List.length (stages p))) with
+  match (n, nat_compare_alt s (List.length (stages p))) with
   | (0   , Lt) => (s, e)
   | (0   , Eq) => (0, S e)
   | (S n', Lt) => ungeid' p n' (S s) e

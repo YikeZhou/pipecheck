@@ -112,7 +112,7 @@ Fixpoint StoreLoadSpecialEdges
   : GlobalGraph :=
   match e_after with
   | h::t =>
-    match (dirn h, nat_compare (loc e) (loc h)) with
+    match (dirn h, nat_compare_alt (loc e) (loc h)) with
     | (R, Eq) => [((4 + 9 * c, eiid e), (3 + 9 * c, eiid h), "StoreLoad")]
     | _ => StoreLoadSpecialEdges n c e_before e t
     end

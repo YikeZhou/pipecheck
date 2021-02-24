@@ -381,10 +381,10 @@ Fixpoint AddUniquePairPair
   let (n2a, n2b) := n2 in
   match l with
   | ((h1a, h1b), (h2a, h2b), s')::t =>
-    match (nat_compare h1a n1a,
-           nat_compare h1b n1b,
-           nat_compare h2a n2a,
-           nat_compare h2b n2b) with
+    match (nat_compare_alt h1a n1a,
+           nat_compare_alt h1b n1b,
+           nat_compare_alt h2a n2a,
+           nat_compare_alt h2b n2b) with
     | (Eq, Eq, Eq, Eq) =>
       if string_dec s s'
         then l
@@ -478,7 +478,7 @@ Fixpoint MergeVertices
   : list (nat * nat) :=
   match g with
   | (h1, h2)::t =>
-    match (nat_compare h1 v2, nat_compare h2 v2) with
+    match (nat_compare_alt h1 v2, nat_compare_alt h2 v2) with
     | (Eq, Eq) => (v1, v1)
     | (_ , Eq) => (h1, v1)
     | (Eq, _ ) => (v1, h2)
@@ -496,8 +496,8 @@ Fixpoint MergePairVertices
   let (v2a, v2b) := v2 in
   match g with
   | ((h1a, h1b), (h2a, h2b), s)::t =>
-    match (nat_compare h1a v1a, nat_compare h1b v1b,
-           nat_compare h2a v2a, nat_compare h2b v2b) with
+    match (nat_compare_alt h1a v1a, nat_compare_alt h1b v1b,
+           nat_compare_alt h2a v2a, nat_compare_alt h2b v2b) with
     | (Eq, Eq, Eq, Eq) => ((v1a, v1b), (v1a, v1b), s)
     | (_ , _ , Eq, Eq) => ((h1a, h1b), (v1a, v1b), s)
     | (Eq, Eq, _ , _ ) => ((v1a, v1b), (h2a, h1b), s)
@@ -512,7 +512,7 @@ Fixpoint MergePairVertices
 Fixpoint Range
   (a b : nat)
   : list nat :=
-  match (b, nat_compare a b) with
+  match (b, nat_compare_alt a b) with
   | (_   , Eq) => [a]
   | (S b', _ ) => Range a b' ++ [b]
   | (0   , _ ) => [0]

@@ -109,7 +109,7 @@ Fixpoint pathOfEvent
   : option PathOption :=
   match s with
   | h::t =>
-    match (nat_compare (eiid (evt h)) e) with
+    match (nat_compare_alt (eiid (evt h)) e) with
     | Eq => Some h
     | _ => pathOfEvent t e
     end

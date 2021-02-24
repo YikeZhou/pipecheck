@@ -509,7 +509,7 @@ Fixpoint LocalEvents
   : list Event :=
   match l with
   | h::t =>
-    match (nat_compare (proc (iiid h)) (proc (iiid e))) with
+    match (nat_compare_alt (proc (iiid h)) (proc (iiid e))) with
     | Eq => h :: LocalEvents t e
     | _  =>      LocalEvents t e
     end

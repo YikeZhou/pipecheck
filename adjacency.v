@@ -180,7 +180,7 @@ Fixpoint PathBacktrace'
   : list nat :=
   match (unroll, nth dst prev None) with
   | (S unroll', Some prevs) =>
-    match nat_compare src prevs with
+    match nat_compare_alt src prevs with
     | Eq => [prevs]
     | _ => PathBacktrace' prev src prevs unroll' ++ [prevs]
     end

@@ -31,7 +31,7 @@ replace `nat_compare` with `nat_compare_alt` (see [this page](https://coq.inria.
 $ make
 
 make -f Makefile.coq
-make[1]: Entering directory '/mnt/c/Users/zyk/Documents/Project/coq/pipecheck'
+make[1]: Entering directory '.../pipecheck'
 COQDEP VFILES
 COQC util2.v
 File "./util2.v", line 305, characters 13-15:
@@ -48,10 +48,39 @@ Error: The constructor GraphTreeOr (in type GraphTree) expects 2 arguments.
 
 make[2]: *** [Makefile.coq:720: tree.vo] Error 1
 make[1]: *** [Makefile.coq:343: all] Error 2
-make[1]: Leaving directory '/mnt/c/Users/zyk/Documents/Project/coq/pipecheck'
+make[1]: Leaving directory '.../pipecheck'
 make: *** [Makefile:6: coq] Error 2
 ```
 
 ## Solution
 
 add `_` so that Coq will guess possible type for GraphTree
+
+# Error 3
+
+```
+$ make
+
+make -f Makefile.coq
+make[1]: Entering directory '.../pipecheck'
+COQDEP VFILES
+COQC tree.v
+COQC adjacency.v
+File "./adjacency.v", line 187, characters 19-60:
+Error:
+No interpretation for string "PathBacktrace' iteration limit exceeded".
+
+make[2]: *** [Makefile.coq:720: adjacency.vo] Error 1
+make[1]: *** [Makefile.coq:343: all] Error 2
+make[1]: Leaving directory '.../pipecheck'
+make: *** [Makefile:6: coq] Error 2
+```
+
+## Solution
+
+Add following codes:
+
+```
+Require Import String.
+Open Scope string_scope.
+```

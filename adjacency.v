@@ -173,6 +173,9 @@ End Example3.
 Find a path from the source node to the target node, given the list of
 "previous nodes" produced by [Dijkstra]. *)
 
+Require Import String.
+Open Scope string_scope.
+
 Fixpoint PathBacktrace'
   (prev : list (option nat))
   (src dst : nat)

@@ -13,3 +13,7 @@ gem5.ml
 opensparc.ml
 _build
 *.old
+*.vok
+*.vos
+*.aux
+Makefile.coq.conf

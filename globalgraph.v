@@ -56,9 +56,9 @@ Fixpoint getid
   (t : GraphTree GlobalEvent)
   : GraphTree nat :=
   match t with
-  | GraphTreeOr     l => GraphTreeOr   _   (map (getid p) l)
-  | GraphTreeAnd    l => GraphTreeAnd  _   (map (getid p) l)
-  | GraphTreeLeaf n l => GraphTreeLeaf _ n (map (gepid p) l)
+  | GraphTreeOr   _ l => GraphTreeOr   _   (map (getid p) l)
+  | GraphTreeAnd  _ l => GraphTreeAnd  _   (map (getid p) l)
+  | GraphTreeLeaf _ n l => GraphTreeLeaf _ n (map (gepid p) l)
   end.
 
 (** [ungeid'] is a helper function for [ungeid] that performs division

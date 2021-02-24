@@ -64,12 +64,12 @@ Fixpoint DNFOfTree {A : Type}
     (append an bn, al ++ bl)
   in
   match t with
-  | GraphTreeOr l =>
+  | GraphTreeOr _ l =>
     fold_left (app (A:=_)) (map DNFOfTree l) []
-  | GraphTreeAnd l =>
+  | GraphTreeAnd _ l =>
     let l' := map DNFOfTree l in
     map (fun x => fold_left joinGraphs x ("", [])) (CartesianProduct l')
-  | GraphTreeLeaf n g => [(n, g)]
+  | GraphTreeLeaf _ n g => [(n, g)]
   end.
 
 (** [GraphTreeSimplify] tries to represent a [GraphTree] in a simpler but
@@ -78,10 +78,10 @@ Fixpoint GraphTreeSimplify {A : Type}
   (g : GraphTree A)
   : GraphTree A :=
   match g with
-  | GraphTreeOr    [x] => GraphTreeSimplify x
-  | GraphTreeOr     l  => GraphTreeOr _ (map GraphTreeSimplify l)
-  | GraphTreeAnd   [x] => GraphTreeSimplify x
-  | GraphTreeAnd    l  => GraphTreeAnd _ (map GraphTreeSimplify l)
+  | GraphTreeOr  _ [x] => GraphTreeSimplify x
+  | GraphTreeOr  _  l  => GraphTreeOr _ (map GraphTreeSimplify l)
+  | GraphTreeAnd _ [x] => GraphTreeSimplify x
+  | GraphTreeAnd _  l  => GraphTreeAnd _ (map GraphTreeSimplify l)
   | _ => g
   end.
 
@@ -220,11 +220,11 @@ Fixpoint DNFStringOfTree {A : Type}
   : string :=
   let f_fold a b := append b (append "-" a) in
   match t with
-  | GraphTreeOr l =>
+  | GraphTreeOr _ l =>
     append "Or(" (append (fold_left f_fold (map (DNFStringOfTree print_node) l) "") ")")
-  | GraphTreeAnd l =>
+  | GraphTreeAnd _ l =>
     append "And(" (append (fold_left f_fold (map (DNFStringOfTree print_node) l) "") ")")
-  | GraphTreeLeaf n l => fold_left append (map (DNFStringOfTree' print_node) l) n
+  | GraphTreeLeaf _ n l => fold_left append (map (DNFStringOfTree' print_node) l) n
   end.
 
 Close Scope string_scope.
@@ -234,9 +234,9 @@ Fixpoint GraphTreeMap {A B : Type}
   (g : GraphTree A)
   : GraphTree B :=
   match g with
-  | GraphTreeAnd    l => GraphTreeAnd  _ (map (GraphTreeMap f) l)
-  | GraphTreeOr     l => GraphTreeOr   _ (map (GraphTreeMap f) l)
-  | GraphTreeLeaf n l =>
+  | GraphTreeAnd  _ l => GraphTreeAnd  _ (map (GraphTreeMap f) l)
+  | GraphTreeOr   _ l => GraphTreeOr   _ (map (GraphTreeMap f) l)
+  | GraphTreeLeaf _ n l =>
     let f' x := (f (fst (fst x)), f (snd (fst x)), snd x) in
     GraphTreeLeaf _ n (map f' l)
   end.
@@ -246,9 +246,9 @@ Fixpoint GraphTreeMapPair {A B : Type}
   (g : GraphTree A)
   : GraphTree B :=
   match g with
-  | GraphTreeAnd    l => GraphTreeAnd  _ (map (GraphTreeMapPair f) l)
-  | GraphTreeOr     l => GraphTreeOr   _ (map (GraphTreeMapPair f) l)
-  | GraphTreeLeaf n l =>
+  | GraphTreeAnd  _ l => GraphTreeAnd  _ (map (GraphTreeMapPair f) l)
+  | GraphTreeOr   _ l => GraphTreeOr   _ (map (GraphTreeMapPair f) l)
+  | GraphTreeLeaf _ n l =>
     GraphTreeLeaf _ n (map f l)
   end.
 

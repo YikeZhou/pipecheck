@@ -1,3 +1,5 @@
+-R . Top
+
 wmm.v
 util2.v
 tree.v

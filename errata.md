@@ -84,3 +84,13 @@ Add following codes:
 Require Import String.
 Open Scope string_scope.
 ```
+
+# Import Error
+
+When stepping, Coq complains that
+
+```
+The file foo.vo contains library Top.foo and not library foo
+```
+
+See this Stack Overflow [page](https://stackoverflow.com/questions/61561014/comparable-vo-contains-library-top-comparable-and-not-library-comparable)

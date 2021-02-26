@@ -204,6 +204,14 @@ unfold DNFOfTree.  unfold map.
 cbv.  auto.
 Qed.
 
+(* type A of tree in e5 should be nat *)
+Check
+  (GraphTreeAnd _ [
+    GraphTreeLeaf _ "A" [(1, 2, "a")];
+    GraphTreeOr _ []
+  ]).
+(* so A is type of nodes *)
+
 End TreeExample.
 
 Definition DNFStringOfTree' {A : Type}
@@ -229,6 +237,7 @@ Fixpoint DNFStringOfTree {A : Type}
 
 Close Scope string_scope.
 
+(* map node type A to B *)
 Fixpoint GraphTreeMap {A B : Type}
   (f : A -> B)
   (g : GraphTree A)
@@ -241,6 +250,7 @@ Fixpoint GraphTreeMap {A B : Type}
     GraphTreeLeaf _ n (map f' l)
   end.
 
+(* different type of function f compare to GraphTreeMap *)
 Fixpoint GraphTreeMapPair {A B : Type}
   (f : A * A * string -> B * B * string)
   (g : GraphTree A)

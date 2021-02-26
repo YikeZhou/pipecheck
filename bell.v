@@ -28,6 +28,10 @@ Require Import util2.
 
 (* Bell numbers *)
 
+(** The Bell number B_n counts the number of different ways to partition a set
+  that has exactly n elements, or equivalently, the number of equivalence 
+  relations on it. *)
+
 Fixpoint UniqueValues'
   (l r : list nat)
   : list nat :=
@@ -44,10 +48,22 @@ Definition UniqueValues
   let r := UniqueValues' l [] in
   r ++ [length r].
 
+Module UniqueValuesExample.
+
+Example e1 :
+  UniqueValues' [1; 2; 3] [3; 4; 5] = [3; 4; 5; 1; 2].
+Proof. cbv. auto. Qed.
+
+Example e2 :
+  UniqueValues [1; 1; 3; 4; 4; 2; 3] = [1; 3; 4; 2; 4].
+Proof. cbv. Abort. (* BUG!!! *)
+
+End UniqueValuesExample.
+
 (** Given a list [l], return a list of lists where each unique value used in
   [l] is appended to [l], plus one unused unique value is also appended to
   [l]. *)
-Fixpoint Bell'
+Definition Bell'
   (l : list nat)
   : list (list nat) :=
   let v := UniqueValues l in

@@ -56,7 +56,7 @@ Proof. cbv. auto. Qed.
 
 Example e2 :
   UniqueValues [1; 1; 3; 4; 4; 2; 3] = [1; 3; 4; 2; 4].
-Proof. cbv. Abort. (* BUG!!! *)
+Proof. cbv. auto. Qed.
 
 End UniqueValuesExample.
 

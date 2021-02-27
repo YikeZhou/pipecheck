@@ -17,3 +17,17 @@ _build
 *.vos
 *.aux
 Makefile.coq.conf
+
+# extracted OCaml files
+allgraphs.ml
+allgraphs2.ml
+gem5fixedgraphs.ml
+gem5fixedgraphs2.ml
+gem5graphs.ml
+gem5graphs2.ml
+opensparcgraphs.ml
+opensparcgraphs2.ml
+riscgraphs.ml
+riscgraphs2.ml
+scprocgraphs.ml
+scprocgraphs2.ml

@@ -42,7 +42,8 @@ Definition AllGraphs :=
     (AllLitmusTestGraphs)
     [].
 
-Extraction Language Ocaml.
+Require Extraction.
+Extraction Language OCaml.
 Extract Inductive bool => "bool" [ "true" "false" ].
 Extract Inductive list => "list" [ "[]" "(::)" ].
 Extract Inductive nat => int [ "0" "(fun x -> x + 1)" ]

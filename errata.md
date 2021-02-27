@@ -198,3 +198,35 @@ Open Scope list_scope.
 ```
 
 similar problems in other pipeline specification files
+
+# Error 7
+
+```
+$ make
+
+make -f Makefile.coq
+make[1]: Entering directory '.../pipecheck'
+COQC allgraphs.v
+File "./allgraphs.v", line 52, characters 0-10:
+Error: Syntax error: illegal begin of vernac.
+
+make[2]: *** [Makefile.coq:720: allgraphs.vo] Error 1
+make[1]: *** [Makefile.coq:343: all] Error 2
+make[1]: Leaving directory '.../pipecheck'
+make: *** [Makefile:6: coq] Error 2
+```
+
+## Solution
+
+replace
+
+```
+Extraction Language Ocaml.
+```
+
+with
+
+```
+Require Extraction.
+Extraction Language OCaml.
+```

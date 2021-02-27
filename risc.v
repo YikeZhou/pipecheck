@@ -55,6 +55,9 @@ Definition NoSpecialEdges : SpecialEdgeMap :=
 (** The store buffer only allows one outstanding unacknowledged store at a
   time. *)
 
+Require Import String.
+Open Scope string_scope.
+
 Fixpoint StoreBufferSpecialEdges
   (c n : nat)
   (e_before : list Event)

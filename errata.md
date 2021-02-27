@@ -134,3 +134,24 @@ Fixpoint RFPerformPairs
 ```
 
 change `Fixpoint` into `Definition`
+
+# Error 5
+
+```
+$ make
+
+make -f Makefile.coq
+make[1]: Entering directory '.../pipecheck'
+COQC risc.v
+File "./risc.v", line 68, characters 51-64:
+Error: No interpretation for string "StoreBuffer".
+
+make[2]: *** [Makefile.coq:720: risc.vo] Error 1
+make[1]: *** [Makefile.coq:343: all] Error 2
+make[1]: Leaving directory '.../pipecheck'
+make: *** [Makefile:6: coq] Error 2
+```
+
+## Solution
+
+see [Error 3](#error-3)

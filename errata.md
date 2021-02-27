@@ -94,3 +94,43 @@ The file foo.vo contains library Top.foo and not library foo
 ```
 
 See this Stack Overflow [page](https://stackoverflow.com/questions/61561014/comparable-vo-contains-library-top-comparable-and-not-library-comparable)
+
+# Error 4
+
+```
+$ make
+
+make -f Makefile.coq
+make[1]: Entering directory '.../pipecheck'
+COQC execution.v
+File "./execution.v", line 157, characters 0-133:
+Warning: Not a truly recursive fixpoint. [non-recursive,fixpoints]
+File "./execution.v", line 178, characters 0-123:
+Warning: Not a truly recursive fixpoint. [non-recursive,fixpoints]
+File "./execution.v", line 184, characters 0-349:
+Warning: Not a truly recursive fixpoint. [non-recursive,fixpoints]
+File "./execution.v", line 184, characters 0-349:
+Error: Cannot guess decreasing argument of fix.
+
+make[2]: *** [Makefile.coq:720: execution.vo] Error 1
+make[1]: *** [Makefile.coq:343: all] Error 2
+make[1]: Leaving directory '.../pipecheck'
+make: *** [Makefile:6: coq] Error 2
+```
+
+## Solution
+
+buggy Fixpoint definition:
+
+```Coq
+Fixpoint RFPerformPairs
+  (src dst : PathOption)
+  : list (location * location) :=
+  let src_core := proc (iiid (evt src)) in
+  let dst_core := proc (iiid (evt dst)) in
+  let src_perf_stages := PerformStagesWRTCore dst_core src in
+  let dst_perf_stages := VisibleStagesWRTCore src_core dst in
+  CartesianProductPairs src_perf_stages dst_perf_stages.
+```
+
+change `Fixpoint` into `Definition`

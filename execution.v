@@ -154,7 +154,7 @@ Fixpoint PerformOrInvStagesWRTCore'
   | [] => []
   end.
 
-Fixpoint PerformOrInvStagesWRTCore
+Definition PerformOrInvStagesWRTCore
   (c : nat)
   (po : PathOption)
   : list nat :=
@@ -175,13 +175,13 @@ Fixpoint VisibleStagesWRTCore'
   | [] => []
   end.
 
-Fixpoint VisibleStagesWRTCore
+Definition VisibleStagesWRTCore
   (c : nat)
   (po : PathOption)
   : list nat :=
   VisibleStagesWRTCore' c (performStages po).
 
-Fixpoint RFPerformPairs
+Definition RFPerformPairs
   (src dst : PathOption)
   : list (location * location) :=
   let src_core := proc (iiid (evt src)) in
@@ -190,7 +190,7 @@ Fixpoint RFPerformPairs
   let dst_perf_stages := VisibleStagesWRTCore src_core dst in
   CartesianProductPairs src_perf_stages dst_perf_stages.
 
-Fixpoint FRinitialPerformPairs
+Definition FRinitialPerformPairs
   (src dst : PathOption) (* src R -> dst W *)
   : list (location * location) :=
   let src_core := proc (iiid (evt src)) in
@@ -199,7 +199,7 @@ Fixpoint FRinitialPerformPairs
   let dst_perf_stages := PerformStagesWRTCore src_core dst in
   CartesianProductPairs src_perf_stages dst_perf_stages.
 
-Fixpoint FRfwPerformPairs
+Definition FRfwPerformPairs
   (src dst : PathOption)
   : list (location * location) :=
   let src_core := proc (iiid (evt src)) in
@@ -450,7 +450,7 @@ Fixpoint ReadsFromInitial
   | [] => []
   end.
 
-Fixpoint ScenarioExecutionEdges_RF
+Definition ScenarioExecutionEdges_RF
   (p : Pipeline)
   (g_uhb : GraphTree GlobalEvent)
   (s : Scenario)

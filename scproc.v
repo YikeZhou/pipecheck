@@ -60,6 +60,9 @@ Definition NoSpecialEdges : SpecialEdgeMap :=
   and a function adding any special edges (in this case, only at the store
   buffer). *)
 
+Require Import String.
+Open Scope string_scope.
+
 Definition SCProc_PipelineStages (c : nat) := [
   mkStage "Fetch"       FIFO              NoSpecialEdges;
   mkStage "Decode"      FIFO              NoSpecialEdges;

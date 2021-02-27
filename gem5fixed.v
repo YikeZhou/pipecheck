@@ -64,6 +64,9 @@ Definition NoSpecialEdges : SpecialEdgeMap :=
 (** ** Same Address *)
 (** *** Load  x -> Load  x (Locally) : Speculative Load Reordering *)
 
+Require Import String.
+Open Scope string_scope.
+
 Fixpoint LoadCacheLineSpecialEdges
   (n c : nat)
   (e_before : list Event)
@@ -89,6 +92,9 @@ Fixpoint SpeculativeLoadReorderingSpecialEdges
   | _ => []
   end.
 
+Close Scope string_scope.
+Open Scope list_scope.
+
 Fixpoint LoadSpecialEdges
   (n c : nat)
   (e_before : list Event)
@@ -103,6 +109,8 @@ Fixpoint LoadSpecialEdges
 (** *** Store x -> Load  x (Locally) : Stores check for ordering violations
   When the store executes, squash the load if it already performed.
   Store set predictors are here too. *)
+
+Open Scope string_scope.
 
 Fixpoint StoreLoadSpecialEdges
   (n c : nat)
@@ -166,6 +174,8 @@ Definition gem5fixed_O3_MemoryHierarchyStages := [
   mkStage "L2CacheForWrites"  NoOrderGuarantees NoSpecialEdges;
   mkStage "Retire"            NoOrderGuarantees NoSpecialEdges
 ].
+
+Close Scope string_scope.
 
 Definition gem5fixed_O3_AllStages n :=
   fold_left (app (A:=_)) (map (gem5fixed_O3_PipelineStages n) [0 ... n-1]) []

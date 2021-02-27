@@ -81,6 +81,10 @@ Definition NoSpecialEdges : SpecialEdgeMap := fun _ _ _ => [].
   stage to any subsequent store leaving the store buffer. *)
 
 (** #<img src="../images/storebuffertiming.png"># *)
+
+Require Import String.
+Open Scope string_scope.
+
 Definition StoreBufferSpecialEdges n c : SpecialEdgeMap :=
   fun _ e e_after =>
   match e_after with
@@ -125,6 +129,9 @@ Fixpoint NoSTBRAWSpecialEdges
     end
   | [] => []
   end.
+
+Close Scope string_scope.
+Open Scope list_scope.
 
 Definition SquashAndNoSTBRAWSpecialEdges n c : SpecialEdgeMap :=
   fun e_before e e_after =>

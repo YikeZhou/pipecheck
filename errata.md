@@ -155,3 +155,46 @@ make: *** [Makefile:6: coq] Error 2
 ## Solution
 
 see [Error 3](#error-3)
+
+# Error 6
+
+```
+$ make
+
+make -f Makefile.coq
+make[1]: Entering directory '.../pipecheck'
+COQC risc.v
+File "./risc.v", line 99, characters 2-69:
+Error:
+In environment
+RISC_AllStages : forall n : nat, ?T
+n : nat
+The term
+ "fold_left (app (A:=Stage)) (map (RISC_PipelineStages n) [0 ... n - 1]) []"
+has type "list Stage" while it is expected to have type 
+"string".
+
+make[2]: *** [Makefile.coq:720: risc.vo] Error 1
+make[1]: *** [Makefile.coq:343: all] Error 2
+make[1]: Leaving directory '.../pipecheck'
+make: *** [Makefile:6: coq] Error 2
+```
+
+while interpreter complains
+
+```
+Syntax error: [term level 200] expected after '...' (in [term]).
+```
+
+## Solution
+
+notation "++" appears in `list_scope` and `string_scope`
+
+add following codes before definition
+
+```
+Close Scope string_scope.
+Open Scope list_scope.
+```
+
+similar problems in other pipeline specification files

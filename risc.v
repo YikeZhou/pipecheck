@@ -95,6 +95,9 @@ Definition RISC_SharedStages := [
   mkStage "Retire"      FIFO              NoSpecialEdges
 ].
 
+Close Scope string_scope.
+Open Scope list_scope.
+
 Fixpoint RISC_AllStages (n : nat) :=
   fold_left (app (A:=_)) (map (RISC_PipelineStages n) [0 ... n-1]) []
   ++ RISC_SharedStages.

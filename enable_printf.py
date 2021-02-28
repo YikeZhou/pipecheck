@@ -60,6 +60,15 @@ timerStopHook_post_string = """  let t_stop = Unix.gettimeofday() in
 def parse(f_in, f_out):
   for ln in f_in:
     if "let printfHook" in ln:
+      ln = ln.replace('_', 's')
+    elif "let debugPrintfHook" in ln:
+      ln = ln.replace('_', 'level', 1).replace('_', 's', 1)
+    elif "let panicHook" in ln:
+      ln = ln.replace('_', 'msg')
+    elif "let timerStopHook" in ln:
+      ln = ln.replace('_', 's', 1).replace('_', 't_start', 1)
+
+    if "let printfHook" in ln:
       f_out.write(printf_pre_string)
     f_out.write(ln)
     if "let printfHook" in ln:

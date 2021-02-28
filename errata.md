@@ -230,3 +230,69 @@ with
 Require Extraction.
 Extraction Language OCaml.
 ```
+
+# Error 8
+
+```
+$ make
+
+...
+ocamlbuild -lib unix printgraphs.native
++ /home/zyk/.opam/default/bin/ocamlc.opt -c -o allgraphs2.cmo allgraphs2.ml
+File "allgraphs2.ml", line 448, characters 37-38:
+448 |   Printf.printf "%s" (stringOfString s);
+                                           ^
+Error: Unbound value s
+Command exited with code 2.
+Hint: Recursive traversal of subdirectories was not enabled for this build,
+  as the working directory does not look like an ocamlbuild project (no
+  '_tags' or 'myocamlbuild.ml' file). If you have modules in subdirectories,
+  you should add the option "-r" or create an empty '_tags' file.
+  
+  To enable recursive traversal for some subdirectories only, you can use the
+  following '_tags' file:
+  
+      true: -traverse
+      <dir1> or <dir2>: traverse
+      
+Compilation unsuccessful after building 3 targets (0 cached) in 00:00:00.
+make: *** [Makefile:38: printgraphs.native] Error 10
+```
+
+## Solution
+
+This problem is due to lack of argument names in `xxxHook` functions. For example, in file `util2.v` the original writer claimed
+
+```
+Definition PrintfHook {A : Type}
+  (a : A)
+  (s : string)
+  : A :=
+  (** in OCaml, insert 'Printf.printf "%s" s;' here *)
+  a.
+```
+
+Here are part of OCaml file `allgraphs2.ml`
+
+```ocaml
+let printfHook a _ =
+  Printf.printf "%s" (stringOfString s);
+  a
+```
+
+I guess that `_` should have been `s`.
+
+Since I don't have enough time to learn OCaml or read Coq manual (sorry for that), I simply modify the Python scripts `enable_printf.py` :
+
+```python
+    if "let printfHook" in ln:
+      ln = ln.replace('_', 's')
+    elif "let debugPrintfHook" in ln:
+      ln = ln.replace('_', 'level', 1).replace('_', 's', 1)
+    elif "let panicHook" in ln:
+      ln = ln.replace('_', 'msg')
+    elif "let timerStopHook" in ln:
+      ln = ln.replace('_', 's', 1).replace('_', 't_start', 1)
+```
+
+By replacing a bunch of `_`s into their argument names from function definitions in `util2.v`, now `make` and `make graphs` and `make results` can finally work despite of several scary warnings.

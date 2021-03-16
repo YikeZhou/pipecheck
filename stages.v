@@ -40,9 +40,11 @@ Definition location : Type := nat.
 
 (** A [Path] is a list of locations (e.g., pipeline stages), given by [nat]
   indices, through which an operation passes during its execution. *)
-Definition Path : Type := list location.
+Definition Path : Type := list location. (* 某条指令执行时在流水线上通过的路径，用位置(location)的列表来表示 *)
 
 (** *** Transitive Closure of a [Path] *)
+(* 计算传递闭包，应当也是为了后面方便计算可达性 *)
+(* https://en.wikipedia.org/wiki/Transitive_closure#/media/File:Transitive-closure.svg 这个图就是要计算的传递闭包 *)
 
 (** Pair the first argument with each element of the second argument *)
 Fixpoint PathTC_Pair {A : Type}
@@ -116,11 +118,14 @@ Definition PathMap : Type := list (list (location * location)).
 
 (* A [LocalOrdering] is an ordering on [Event]s that is enforced with at
   a given [location] (e.g., at a particular pipeline stage) *)
+  (* 某个流水级可以保证流出的顺序和流入一致 *)
 Definition LocalOrdering : Type := list (Event * Event).
 
 (** A [LocalReordering] takes a set of events and returns some other
 set of events.  This represents the set of guarantees that are
 maintained, restored, no longer maintained, etc. through a given location.
+(* 对于某个位置，还可以不维护流入的顺序，这样的用Local reordering表示。
+   输入：之前的流水级看到的顺序，这样就可以定义rob等结构 *)
 
 The first argument provides the ordering as seen by all previous locations in
 the pipeline.  We use this to be able to define things like reorder buffers,
@@ -140,15 +145,17 @@ Definition TransferedEdge
   let (p1, p2) := (nth (eiid e1) paths [], nth (eiid e2) paths []) in
     andb (Inb_nat_nat (v1, v2) p1) (Inb_nat_nat (v1, v2) p2).
 
+(* 所以有一类边被称为local ordering边？但是local ordering应该表示的是一组边？看这里的注释，transfered edge
+貌似是指重复的edge？即起点都在v1，终点都在V2的edge?总是感觉这个函数是一个filter，选出是transferred edge的函数 *)
 (** Given a set [candidates] of [LocalOrdering] edges at a vertex [v1], return
   the set of edges that are [TransferedEdge]s from [v1] to [v2]; i.e., those
   such that the source and dest of the edge both have [v2] as the next stage
   in their paths. *)
 Fixpoint TransferedEdges
   (paths : PathMap)
-  (candidates : list (Event * Event))
+  (candidates : list (Event * Event)) (* 相当于把上一个函数里的e1->e2一条边替换成一组边 *)
   (v1 v2 : location)
-  : list (Event * Event) :=
+  : list (Event * Event) := (* 一起判断这一组边里有没有transferred edges *)
   match candidates with
   | [] => []
   | (e1, e2)::t =>
@@ -157,17 +164,23 @@ Fixpoint TransferedEdges
       else TransferedEdges paths t v1 v2
   end.
 
+(* 不止返回transfered edge，还要在上面应用local_reordering *)
 (** Given a set [candidates] of [LocalOrdering] edges at a vertex [v1], return
   the set of [TransferedEdges], and apply the [local_reordering] that a
   location performs. *)
 Definition TransferedReorderedEdges
-  (paths : PathMap)
+  (paths : PathMap) (* TODO 这么多地方都有path map，但是它是在哪里生成的呢 *)
   (candidates : list (Event * Event))
-  (edges_all : list (list (Event * Event)))
+  (edges_all : list (list (Event * Event))) (* 加的一个edges_all参数表示v1之前所有location的ordering *)
   (v1 v2 : location)
-  (local_reordering : LocalReordering)
+  (local_reordering : LocalReordering) (* 这两个参数就是给local ordering设计的 吗 *)
   : list (Event * Event) :=
-  local_reordering edges_all (TransferedEdges paths candidates v1 v2).
+  local_reordering edges_all (TransferedEdges paths candidates v1 v2). (* 看这里的 local_reordering用法，不知道edges_all是啥 *)
+  (* 对 transfered edges再应用一下 *)
+
+(* 看到这里，最大的问题就是vertex是uhb里的vertex吗，event是uhb graph里的一个节点吗？ *)
+(* vertex应该不是uhb里的一个节点，vertex应该对应一个location? event显然不是一个节点，因为event对应了一串节点
+   总结一下，vertex对应横着的一串，event对应竖着的一串？现在暂时这么理解的 *)
 
 (** Return the set of [TransferedReorderedEdges] from [v1] to [v2], where
   [v1] is the index into the list of list of edges [edges_all]. *)
@@ -186,6 +199,9 @@ Fixpoint EdgesToTransferedEdges'
 
 (** Return the union of the sets of [TransferedReorderedEdges] from every
   previous location to [v2]. *)
+  (* 返回集合的并集，pathmap已经是location*location的二维数组了，这样的pathmap应该是对应了
+  litmus test的一个线程的n个event分别是怎么执行的，也就是说其中的一项是一个event的path
+  那event的path是location的连线，为什么又有event之间的顺序？一个event是一条指令的执行？event的list表示一个程序？ *)
 Definition EdgesToTransferedEdges
   (paths : PathMap)
   (edges_all : list (list (Event * Event)))
@@ -233,16 +249,21 @@ Definition edges012 := EdgesToEdges pathpairs FIFO edges01.
 Definition edges0123 := EdgesToEdges pathpairs FIFO edges012.
 
 End EdgesExample.
-
+(* 下面这些应该就是计算不同类型的边的吧，但是uhb graph的定义到底在哪里呢 *)
 (** Given a list of events originating at a given [location], create program
   order edges between edges from the same [poi]. *)
-Definition ProgramOrderEdges
+
+Check fold_left.
+Check AppendToNth.
+Definition ProgramOrderEdges (* 这个函数应该要求event输入的时候就维持了program order把，可能输入的时候是interleave  的event？但是好像只用了1次 *)
   (l : list Event)
   : list (Event * Event) :=
-  let sorted_events := fold_left
-    (fun l' e => AppendToNth l' (proc (iiid e)) e) l [] in
-  let edges := map PathTC sorted_events in
-  fold_left (app (A:=_)) edges [].
+  let sorted_events := fold_left (* 下面的 (proc (iiid e)) 是获得event e里的processor编号 *)
+    (fun l' e => AppendToNth l' (proc (iiid e)) e) l [] in (* 对于l 里的每个event都 使用append to nth 把他们按照processor分类到几个list里 *)
+  let edges := map PathTC sorted_events in (* 计算每个processor上的event list的传递闭包 *)
+  fold_left (app (A:=_)) edges []. (* 把传递闭包app起来,即把含有不同core上的edge的二维数组flatten起来 *)
+
+  (* 图中的ppo edge只有在fetch stage之间才会出现，而且有3条指令的litmus test也只出现了2个ppo edge？为什么不是这里的传递闭包(3 edges)? *)
 
 (** Given a list of locations (defined as a list of [LocalReordering]s),
   a set of [LocalOrdering] edges from the first [location], and a [PathMap]
@@ -251,13 +272,13 @@ Definition ProgramOrderEdges
 
   [IntraLocationEdges'] handles cases other than the first, i.e., those which
   are defined in terms of previous [location]s rather than program order. *)
-Fixpoint IntraLocationEdges'
-  (paths : PathMap)
+Fixpoint IntraLocationEdges' (* intra location是在一个location里的边，就是图中的横着的边有这条边是因为有的流水级可以保持FIFO的顺序 *)
+  (paths : PathMap) (* 每条指令 的path *)
   (edges_all : list (list (Event * Event)))
   (po_events : list (list Event))
-  (local_reorderings : list (LocalReordering))
+  (local_reorderings : list (LocalReordering)) (* 这里似乎是给出一组位置 *)
   : list (list (Event * Event)) :=
-  match (local_reorderings, po_events) with
+  match (local_reorderings, po_events) with (*  *)
   | (oh::ot, eh::et) =>
     IntraLocationEdges' paths
       (AppendToLast (ProgramOrderEdges eh) (EdgesToEdges paths oh edges_all))
@@ -276,7 +297,7 @@ Fixpoint IntraLocationEdges'
   in terms of program order, since there are no previous [location]s. *)
 Definition IntraLocationEdges
   (paths : PathMap)
-  (events : list (list Event))
+  (events : list (list Event)) (* 这里就是把 *)
   (local_reorderings : list (LocalReordering))
   : list (list (Event * Event)) :=
   IntraLocationEdges' paths [] events local_reorderings.
@@ -299,10 +320,10 @@ End EdgesExample2.
 
 (** A [GlobalEvent] is a memory [Event] (as its [eiid]) passing through
   a particular [location] *)
-Definition GlobalEvent : Type := prod location Eiid.
+Definition GlobalEvent : Type := prod location Eiid. (* prod 是表示两个类型的积 即 prod A B = A * B global event由时间编号和位置两个因素决定 *)
 
 (** A [GlobalGraph] is a list of labeled edges between [GlobalEvent]s *)
-Definition GlobalGraph : Type := list (GlobalEvent * GlobalEvent * string).
+Definition GlobalGraph : Type := list (GlobalEvent * GlobalEvent * string). (* 这里的 global可以相当于leaf里的A *)
 
 (** * Pipeline Model *)
 
@@ -578,11 +599,12 @@ Fixpoint ScenarioPipelineSpecialEdges
   end.
 
 (** Calculate the set of all global edges in a [Scenario] *)
+(* 获取scenario中所有的global edge *)
 Definition ScenarioEdges
   (t : string)
   (p : Pipeline)
   (s : Scenario)
-  : GraphTree GlobalEvent :=
+  : GraphTree GlobalEvent := (* 这里的graph tree中的节点是global event *)
   let (t_start, t) := TimerStartHook t in
   let result := GraphTreeLeaf _ t (
     ScenarioIntraLocationGlobalEdges s p

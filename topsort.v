@@ -28,6 +28,8 @@ Require Import adjacency.
 Require Import Ascii.
 Require Import String.
 
+(* 拓扑排序 *)
+
 Inductive TopsortResult : Type :=
   | TotalOrdering : list nat -> TopsortResult
   | CycleFound : list nat -> TopsortResult.
